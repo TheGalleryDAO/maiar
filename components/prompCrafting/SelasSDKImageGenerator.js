@@ -20,21 +20,19 @@ export default function SelasSDKImageGenerator({prompt, preset, parentCallback})
     }
 
 
-    const whenJobIsDone = async (payload) => {
+    const whenJobIsDone = async (results) => {
         try{
-            const {data: results} = await client.getResults(payload.new.id);
-            if(results[0]?.uri){
-               const _image = await createImageObject(jobId)
-               await parentCallback(results[0].uri)
+            if(results?.new?.uri){
+               await parentCallback({
+                img_url:results?.new?.uri,
+                prompt:finalPrompt
+
+               })
                setLoading(false)
             
-            }else if(!results[0]?.uri){
-                console.log("Error: Not URI")
-                setError(true)
-                parentCallback(null)
-                setDefaults()
+            
             }else{
-                console.log("Error", results[0]?.uri, jobId, image?.job_id)
+                console.log("Error", results?.new?.uri, image?.job_id)
                 setDefaults()
                 parentCallback(null)
                 setError(true)
@@ -54,20 +52,20 @@ export default function SelasSDKImageGenerator({prompt, preset, parentCallback})
             const key  = response?.data?.data?.key
             console.log(key)
             if(key && finalPrompt){
-                const {data: job, message, error } = await client.runStableDiffusion(finalPrompt, 512, 512, 50, 7.5, key);
+                const {data: job, message, error } = await client.runStableDiffusion(finalPrompt, 512, 512, 50, 7.5,"k_lms",1, "jpg",key);
                 // subscribe to job updates
-                setJobId(job.id)
-                console.log(job.id)
-                await client.supabase.from("jobs").on("UPDATE", (payload) => {
-                  if(payload.new.status === "completed" && payload.new.id === job.id) {
-                    whenJobIsDone(payload);
-                  }
-                  if (payload.new.status === "failed") {
-                    setError(true);
-                    parentCallback(null)
-                  }
+                console.log(error)
+                await client.subscribeToResults(job.id, whenJobIsDone)
+                // await client.supabase.from("jobs").on("UPDATE", (payload) => {
+                //   if(payload.new.status === "completed" && payload.new.id === job.id) {
+                //     whenJobIsDone(payload);
+                //   }
+                //   if (payload.new.status === "failed") {
+                //     setError(true);
+                //     parentCallback(null)
+                //   }
                    
-                  }).subscribe();
+                //   }).subscribe();
             }
         }
     }

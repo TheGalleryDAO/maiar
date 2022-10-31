@@ -8,26 +8,9 @@ import Login from '../Social/Login'
 // component that works on pages which support both client and server side
 // rendering, and avoids any flash incorrect content on initial page load.
 export default function Header() {
-  const { data: session, status } = useSession()
-  const [isLensLoged,setIsLensLoged] = useState(false)
-  const [isVisible,setIsVisible] = useState(false)
 
-  useEffect(() => {
-    const lenstToken = localStorage.getItem("LensToken")
-    setIsLensLoged(lenstToken && lenstToken !== "")
-  },[session])
-  const logOutLens = () => {
-    localStorage.setItem("LensToken", "")
-  }
-  useEffect(() => {
-    setIsVisible(false)
-  },[isLensLoged])
   return (
     <header className="bg-black">
-      <Modal visible={isVisible} onCancel={() => setIsVisible(false)} footer={null} width={1000}>
-      <Login parentCallback={(data) => setIsLensLoged(data)}/>              
-
-      </Modal>
       <div className={"container-fluid py-3"}>
         <Row gutter={[16,16]} align="middle" justify="space-between">
           <Col>
@@ -43,23 +26,6 @@ export default function Header() {
           <Col>
           <Row gutter={[16,16]} justify="end">
 
-          {!session && (
-            <Col>
-                <Button href="/login" shape="round" size="small" type="primary">Connect Wallet</Button>                          
-            </Col>
-          )}
-          
-          {session && session.handle && !isLensLoged && (
-            <Col>
-            <Button onClick={() => setIsVisible(true)} shape="round" size="small" type="primary">
-                Connect to Lens
-            </Button>  
-            </Col>
-            
-          )}
-
-          {session && session.user && session.user.address &&(
-            <>
               <Col>
               <Link href="/">             
                 <Button shape="round" size="small" type="primary">
@@ -74,26 +40,7 @@ export default function Header() {
                 </Button>
               </Link>
               </Col>
-              <Col>
-              <Button
-              type="primary"
-              danger
-              shape="round"
-              size="small"
-                href={`/api/auth/signout`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  logOutLens()
-                  signOut()
-                }}
-              >
-                Sign out
-              </Button>
-              </Col>
-              </>
-          )
-        }
-        </Row>
+            </Row>
 
           </Col>
         </Row>

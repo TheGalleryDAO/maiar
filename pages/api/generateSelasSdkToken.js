@@ -7,7 +7,7 @@ export default async function generateSelasToken(req, res){
             res.status(405).send({ message: 'Only GET requests allowed' })
             return
           }
-        const data = await createToken()
+        const data = await createToken("0xB740257c15bABb2b4F002Bf884b13C7aC648Be60")
         res.send({data})
     }catch(err){
         res.status(500).send({err})

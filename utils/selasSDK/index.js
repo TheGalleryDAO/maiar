@@ -1,16 +1,15 @@
-import {createSelasClient} from 'selas'
-import { v4 as uuidv4 } from 'uuid';
+import {createBackendSelasClient} from 'selas'
 
-function createToken(){
 
+function createToken(address){
     return new Promise(async (resolve, reject) => {
-        const uuid = "0xB740257c15bABb2b4F002Bf884b13C7aC648Be60"
-      const client = createSelasClient();
+      const client = createBackendSelasClient();
       await client.signIn(process.env.SELAS_USER, process.env.SELAS_PWD);
-        const { data: token } = await client.createToken(uuid, 1, 60).catch((err) => {
+        const { data: token, error } = await client.createToken(address, 1, 60).catch((err) => {
             console.trace(err);
             reject(err)
         });
+        console.log(error)
         console.log(token)
         resolve(token)
 
